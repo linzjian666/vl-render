@@ -12,7 +12,7 @@ const fetch = require("node-fetch");
 const fs = require('fs');
 const yaml = require('js-yaml');
 
-const data = {
+let data = {
   log:
     loglevel: info
   dns:
@@ -72,13 +72,8 @@ const data = {
         outboundTag: WARP
 };
 
-try {
-  const yamlData = yaml.dump(data);
-  fs.writeFileSync('config.yaml', yamlData);
-  console.log('YAML 文件写入成功！');
-} catch (error) {
-  console.error('写入 YAML 文件时出错：', error);
-}
+let yamlStr = yaml.safeDump(data);
+fs.writeFileSync('config.yaml', yamlStr, 'utf8');
 
 app.use((req, res, next) => {
   const user = auth(req);
