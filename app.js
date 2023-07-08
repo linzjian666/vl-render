@@ -1,3 +1,6 @@
+const username = "admin";
+const password = "passwd@123";
+const url = "https://" + process.env.RENDER_EXTERNAL_HOSTNAME;
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
@@ -7,6 +10,15 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 var request = require("request");
 const fetch = require("node-fetch");
 
+app.use((req, res, next) => {
+  const user = auth(req);
+  if (user && user.name === username && user.pass === password) {
+    return next();
+  }
+  res.set("WWW-Authenticate", 'Basic realm="Node"');
+  return res.status(401).send();
+});
+
 app.get("/", (req, res) => {
   res.send("Hello world!!")
   /*伪装站点，由于太卡了,会急剧降低容器性能，建议不要开启
@@ -15,7 +27,7 @@ app.get("/", (req, res) => {
   */
 });
 
-app.get("/status", (req, res) => {
+app.get("/status", function (req, res) => {
   let cmdStr = "ps -ef";
   exec(cmdStr, function (err, stdout, stderr) {
     if (err) {
@@ -26,7 +38,7 @@ app.get("/status", (req, res) => {
   });
 });
 
-app.get("/start", (req, res) => {
+app.get("/start", function (req, res) => {
   let cmdStr = "./web -c ./config.yaml >/dev/null 2>&1 &";
   exec(cmdStr, function (err, stdout, stderr) {
     if (err) {
@@ -37,7 +49,7 @@ app.get("/start", (req, res) => {
   });
 });
 
-app.get("/info", (req, res) => {
+app.get("/info", function (req, res) => {
   let cmdStr = "cat /etc/*release | grep -E ^NAME";
   exec(cmdStr, function (err, stdout, stderr) {
     if (err) {
@@ -51,15 +63,16 @@ app.get("/info", (req, res) => {
 });
 
 app.use(
-  "/3e7e830a-9be5-41c1-ad8b-b08403f33782-vless",
+  "/",
   createProxyMiddleware({
-    target: "http://127.0.0.1:8080/", // 需要跨域处理的请求地址
     changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
-    ws: true, // 是否代理websockets
+    onProxyReq: function onProxyReq(proxyReq, req, res) {},
     pathRewrite: {
-      // 请求中去除/api
-      "^/api": "/qwe",
+      // 请求中去除/
+      "^/": "/",
     },
+    target: "http://127.0.0.1:8080/", // 需要跨域处理的请求地址
+    ws: true, // 是否代理websockets
     onProxyReq: function onProxyReq(proxyReq, req, res) {
       // 我就打个log康康
       console.log("-->  ", req.method, req.baseUrl, "->", proxyReq.host + proxyReq.path
@@ -71,7 +84,7 @@ app.use(
 /* keepalive  begin */
 function keepalive() {
   // 1.请求主页，保持唤醒
-  let render_app_url = "https://jackxiao13800.onrender.com";
+  let render_app_url = url;
   request(render_app_url, function (error, response, body) {
     if (!error) {
       console.log("主页发包成功！");
