@@ -25,7 +25,7 @@ outbounds:
   tag: direct
   settings:
     domainStrategy: UseIPv4
-- tag: "WARP"
+- tag: WARP
   protocol: wireguard
   settings:
     secretKey: "uC8wYr2q+VgqyGkUmnNxz5PR8rTVEfTolsed0YK7LG4="
@@ -40,9 +40,9 @@ outbounds:
       endpoint: "162.159.193.10:2408"
     mtu: 1280
 routing:
-domainStrategy: "AsIs"
+domainStrategy: AsIs
 rules:
-  type: "field"
+  type: field
   domain:
     - domain:ai.com
     - domain:auth0.com
@@ -57,4 +57,4 @@ rules:
     - domain:openaiapi-site.azureedge.net
     - domain:sentry.io
     - domain:stripe.com
-  outboundTag: "WARP"
+  outboundTag: WARP
