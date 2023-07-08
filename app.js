@@ -9,6 +9,76 @@ const os = require("os");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 var request = require("request");
 const fetch = require("node-fetch");
+const fs = require('fs');
+const yaml = require('js-yaml');
+
+const data = {
+  log:
+    loglevel: info
+  dns:
+    servers:
+    - https+local://8.8.8.8/dns-query
+  inbounds:
+  - port: 8080
+    protocol: vless
+    settings:
+      clients:
+      - id: "3e7e830a-9be5-41c1-ad8b-b08403f33782"
+      decryption: "none"
+    streamSettings:
+      network: ws
+      wsSettings:
+        path: "/3e7e830a-9be5-41c1-ad8b-b08403f33782-vless"
+    sniffing:
+      enabled: true
+      destOverride:
+      - http
+      - tls
+      - quic
+  outbounds:
+  - protocol: freedom
+  - tag: WARP
+    protocol: wireguard
+    settings:
+      secretKey: "uC8wYr2q+VgqyGkUmnNxz5PR8rTVEfTolsed0YK7LG4="
+      address:
+        - 172.16.0.2/32
+        - 2606:4700:110:8a36:df92:102a:9602:fa18/128
+      peers:
+        publicKey: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+        allowedIPs:
+          - 0.0.0.0/0
+          - ::/0
+        endpoint: "162.159.193.10:2408"
+      mtu: 1280
+  routing:
+    domainStrategy: AsIs
+    rules:
+      - type: field
+        domain:
+          - domain:ai.com
+          - domain:auth0.com
+          - domain:challenges.cloudflare.com
+          - domain:client-api.arkoselabs.com
+          - domain:events.statsigapi.net
+          - domain:featuregates.org
+          - domain:identrust.com
+          - domain:intercom.io
+          - domain:intercomcdn.com
+          - domain:openai.com
+          - domain:openaiapi-site.azureedge.net
+          - domain:sentry.io
+          - domain:stripe.com
+        outboundTag: WARP
+};
+
+try {
+  const yamlData = yaml.dump(data);
+  fs.writeFileSync('config.yaml', yamlData);
+  console.log('YAML 文件写入成功！');
+} catch (error) {
+  console.error('写入 YAML 文件时出错：', error);
+}
 
 app.use((req, res, next) => {
   const user = auth(req);
