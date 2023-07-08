@@ -8,7 +8,7 @@ var request = require("request");
 const fetch = require("node-fetch");
 
 app.get("/", (req, res) => {
-  res.send("hello world")
+  res.send("Hello world!!")
   /*伪装站点，由于太卡了,会急剧降低容器性能，建议不要开启
   let fake_site_url = "https://www.qidian.com/"
   fetch(fake_site_url).then((res) => res.text()).then((html) => res.send(html));
@@ -51,7 +51,7 @@ app.get("/info", (req, res) => {
 });
 
 app.use(
-  "/api",
+  "/3e7e830a-9be5-41c1-ad8b-b08403f33782-vless",
   createProxyMiddleware({
     target: "http://127.0.0.1:8080/", // 需要跨域处理的请求地址
     changeOrigin: true, // 默认false，是否需要改变原始主机头为目标URL
