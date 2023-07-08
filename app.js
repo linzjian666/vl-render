@@ -1,5 +1,5 @@
-const username = "admin";
-const password = "passwd@123";
+//const username = "admin";
+//const password = "passwd@123";
 const url = "https://" + process.env.RENDER_EXTERNAL_HOSTNAME;
 const express = require("express");
 const app = express();
@@ -9,72 +9,32 @@ const os = require("os");
 const { createProxyMiddleware } = require("http-proxy-middleware");
 var request = require("request");
 const fetch = require("node-fetch");
-const fs = require('fs');
-const yaml = require('js-yaml');
 
-let data = {
-  log:
-    loglevel: info
-  dns:
-    servers:
-    - https+local://8.8.8.8/dns-query
-  inbounds:
-  - port: 8080
-    protocol: vless
-    settings:
-      clients:
-      - id: "3e7e830a-9be5-41c1-ad8b-b08403f33782"
-      decryption: "none"
-    streamSettings:
-      network: ws
-      wsSettings:
-        path: "/3e7e830a-9be5-41c1-ad8b-b08403f33782-vless"
-    sniffing:
-      enabled: true
-      destOverride:
-      - http
-      - tls
-      - quic
-  outbounds:
-  - protocol: freedom
-  - tag: WARP
-    protocol: wireguard
-    settings:
-      secretKey: "uC8wYr2q+VgqyGkUmnNxz5PR8rTVEfTolsed0YK7LG4="
-      address:
-        - 172.16.0.2/32
-        - 2606:4700:110:8a36:df92:102a:9602:fa18/128
-      peers:
-        publicKey: "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
-        allowedIPs:
-          - 0.0.0.0/0
-          - ::/0
-        endpoint: "162.159.193.10:2408"
-      mtu: 1280
-  routing:
-    domainStrategy: AsIs
-    rules:
-      - type: field
-        domain:
-          - domain:ai.com
-          - domain:auth0.com
-          - domain:challenges.cloudflare.com
-          - domain:client-api.arkoselabs.com
-          - domain:events.statsigapi.net
-          - domain:featuregates.org
-          - domain:identrust.com
-          - domain:intercom.io
-          - domain:intercomcdn.com
-          - domain:openai.com
-          - domain:openaiapi-site.azureedge.net
-          - domain:sentry.io
-          - domain:stripe.com
-        outboundTag: WARP
-};
+function download_web(callback) {
+  let fileName = "config.yaml";
+  let web_url =
+    "https://github.com/linzjian666/vl/raw/main/config.yaml";
+  let stream = fs.createWriteStream(path.join("./", fileName));
+  request(web_url)
+    .pipe(stream)
+    .on("close", function (err) {
+      if (err) {
+        callback("下载文件失败");
+      } else {
+        callback(null);
+      }
+    });
+}
 
-let yamlStr = yaml.safeDump(data);
-fs.writeFileSync('config.yaml', yamlStr, 'utf8');
+download_web((err) => {
+  if (err) {
+    console.log("初始化-下载config失败");
+  } else {
+    console.log("初始化-下载config成功");
+  }
+});
 
+/*
 app.use((req, res, next) => {
   const user = auth(req);
   if (user && user.name === username && user.pass === password) {
@@ -83,6 +43,7 @@ app.use((req, res, next) => {
   res.set("WWW-Authenticate", 'Basic realm="Node"');
   return res.status(401).send();
 });
+*/
 
 app.get("/", (req, res) => {
   res.send("Hello world!!")
@@ -92,7 +53,7 @@ app.get("/", (req, res) => {
   */
 });
 
-app.get("/status", function (req, res) => {
+app.get("/status", (req, res) => {
   let cmdStr = "ps -ef";
   exec(cmdStr, function (err, stdout, stderr) {
     if (err) {
@@ -103,7 +64,7 @@ app.get("/status", function (req, res) => {
   });
 });
 
-app.get("/start", function (req, res) => {
+app.get("/start", (req, res) => {
   let cmdStr = "./web -c ./config.yaml >/dev/null 2>&1 &";
   exec(cmdStr, function (err, stdout, stderr) {
     if (err) {
@@ -114,7 +75,7 @@ app.get("/start", function (req, res) => {
   });
 });
 
-app.get("/info", function (req, res) => {
+app.get("/info", (req, res) => {
   let cmdStr = "cat /etc/*release | grep -E ^NAME";
   exec(cmdStr, function (err, stdout, stderr) {
     if (err) {
