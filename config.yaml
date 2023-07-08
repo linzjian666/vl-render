@@ -22,9 +22,6 @@ inbounds:
     - quic
 outbounds:
 - protocol: freedom
-  tag: direct
-  settings:
-    domainStrategy: UseIPv4
 - tag: WARP
   protocol: wireguard
   settings:
@@ -40,21 +37,21 @@ outbounds:
       endpoint: "162.159.193.10:2408"
     mtu: 1280
 routing:
-domainStrategy: AsIs
-rules:
-  type: field
-  domain:
-    - domain:ai.com
-    - domain:auth0.com
-    - domain:challenges.cloudflare.com
-    - domain:client-api.arkoselabs.com
-    - domain:events.statsigapi.net
-    - domain:featuregates.org
-    - domain:identrust.com
-    - domain:intercom.io
-    - domain:intercomcdn.com
-    - domain:openai.com
-    - domain:openaiapi-site.azureedge.net
-    - domain:sentry.io
-    - domain:stripe.com
-  outboundTag: WARP
+  domainStrategy: AsIs
+  rules:
+    - type: field
+      domain:
+        - domain:ai.com
+        - domain:auth0.com
+        - domain:challenges.cloudflare.com
+        - domain:client-api.arkoselabs.com
+        - domain:events.statsigapi.net
+        - domain:featuregates.org
+        - domain:identrust.com
+        - domain:intercom.io
+        - domain:intercomcdn.com
+        - domain:openai.com
+        - domain:openaiapi-site.azureedge.net
+        - domain:sentry.io
+        - domain:stripe.com
+      outboundTag: WARP
